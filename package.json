@@ -1,0 +1,31 @@
+{
+  "name": "react-native-ble-plx-mock-recorder-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mock recorder tool for https://www.npmjs.com/package/react-native-ble-plx",
+  "scripts": {
+    "clean": "bash -c ./script/clean.sh",
+    "prepublish": "bash -c ./script/prepublish.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/larsthorup/react-native-ble-plx-mock-recorder.git"
+  },
+  "author": "Lars Thorup <lars@zealake.com> (https://www.zealake.com/)",
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "native",
+    "react-native",
+    "bluetooth",
+    "low",
+    "energy",
+    "BLE",
+    "jest",
+    "mock"
+  ],
+  "bugs": {
+    "url": "https://github.com/larsthorup/react-native-ble-plx-mock-recorder/issues"
+  },
+  "homepage": "https://github.com/larsthorup/react-native-ble-plx-mock-recorder#readme"
+}
