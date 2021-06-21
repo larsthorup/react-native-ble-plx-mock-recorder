@@ -13,14 +13,45 @@ You will create a seperate mock recorder app, using the "react-native-ble-plx-mo
 
 Then use this library to play back the BLE traffic every time you run your Jest UI tests, and enjoy the speed of up to 100 of tests per second.
 
-## Getting started
+## Prerequisites
 
 Prerequisites
 
-- A Bluetooth/BLE device
+- A Bluetooth/BLE device, powered on, nearby, not connected to a phone
 - A react-native app talking to the BLE device
-- An Android phone (support for iPhone is planned)
-- Setup your React Native environment: https://reactnative.dev/docs/environment-setup
-- Have bash in your path
+- An Android phone (support for iPhone is planned), plugged into your computer
+- Your React Native environment: https://reactnative.dev/docs/environment-setup
+- Bash in your path
+
+## Demo
+
+```bash
+npm install
+npm run demo:app
+# then close the app and the Metro popup terminal window
+npm run demo:recorder
+# from here on you can unplug phone and power down BLE device
+npm run demo:app:test
+```
+
+## Getting started
 
 ## Contribute
+
+Contributions are welcome!
+
+## Publish new version
+
+```bash
+# git commit && git push
+# wait for CI to pass
+test -z "$(git status --porcelain)" || echo clean workspace first
+git checkout main
+git pull
+npm test
+# npm run demo:test
+# npm run android (terminal 1)
+npm run bump
+npm run publish
+# git commit && git push
+```
