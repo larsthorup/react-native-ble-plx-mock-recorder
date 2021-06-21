@@ -5,3 +5,7 @@ for PACKAGE in $PACKAGE_LIST; do
     (cd packages/$PACKAGE && bash -c ./script/unpack.sh)
   fi
 done
+for PROJECT in $DEMO_LIST; do
+  echo demo/$PROJECT - unpack
+  (cd demo/$PROJECT && bash -c ./script/unpack.sh)
+done

@@ -5284,9 +5284,9 @@
   "resolved" "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz"
   "version" "16.13.1"
 
-"react-native-ble-plx-mock-recorder@^0.0.1":
-  "integrity" "sha512-P+4GQMfFeUSwPqtau+oc+i29kAfZnAG4Uu01dDaeJ04zPENwV5MitA1AEj87RTrEHmB0j1tNknWIeD8BogpeoA=="
-  "resolved" "https://registry.npmjs.org/react-native-ble-plx-mock-recorder/-/react-native-ble-plx-mock-recorder-0.0.1.tgz"
+"react-native-ble-plx-mock-recorder@file:../../packages/react-native-ble-plx-mock-recorder/react-native-ble-plx-mock-recorder-local.tgz":
+  "integrity" "sha512-ODdHDn9fqX6qt/raFFJxT/dXJXwNbvXKVKjDmoke/QMiVA1+U2HsTJG6mslDTeUBkGkHqsae4Iq2NC4urR/77g=="
+  "resolved" "file:../../packages/react-native-ble-plx-mock-recorder/react-native-ble-plx-mock-recorder-local.tgz"
   "version" "0.0.1"
   dependencies:
     "buffer" "^6.0.3"
