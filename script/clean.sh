@@ -1,4 +1,4 @@
-source ./script/config.sh
+source ./script/workspace.sh
 for PACKAGE in $PACKAGE_LIST; do
   echo packages/$PACKAGE - clean
   (cd packages/$PACKAGE && rm -rf node_modules)

@@ -1,3 +1,6 @@
+artifact/
+coverage/
+output/
 node_modules/
 .npmignore
 LICENSE

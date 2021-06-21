@@ -1,4 +1,4 @@
-source ./script/config.sh
+source ./script/workspace.sh
 for PACKAGE in $PACKAGE_LIST; do
   if [ -f packages/$PACKAGE/script/pack.sh ]; then
     echo packages/$PACKAGE - pack

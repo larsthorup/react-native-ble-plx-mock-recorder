@@ -13,7 +13,8 @@
     "c8": "c8 --reporter=lcov --reporter=text-summary mocha",
     "eslint": "eslint . --fix --max-warnings 0 --ignore-path .gitignore",
     "mocha": "mocha",
-    "test": "npm run eslint && npm run c8"
+    "test": "npm run eslint && npm run c8",
+    "unpack": "bash -c ./script/unpack.sh"
   },
   "dependencies": {
     "chalk": "^4.1.1",
