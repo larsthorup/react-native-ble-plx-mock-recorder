@@ -4,6 +4,7 @@
   "private": true,
   "description": "Mock recorder tool for https://www.npmjs.com/package/react-native-ble-plx",
   "scripts": {
+    "ci": "echo TODO ci",
     "clean": "bash -c ./script/clean.sh",
     "pack": "echo TODO pack",
     "postinstall": "bash -c ./script/postinstall.sh && npm run pack && npm run unpack",
