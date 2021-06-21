@@ -6,10 +6,10 @@
   "scripts": {
     "ci": "echo TODO ci",
     "clean": "bash -c ./script/clean.sh",
-    "pack": "echo TODO pack",
+    "pack": "bash -c ./script/pack.sh",
     "postinstall": "bash -c ./script/postinstall.sh && npm run pack && npm run unpack",
     "prepublish": "bash -c ./script/prepublish.sh",
-    "unpack": "echo TODO unpack"
+    "unpack": "bash -c ./script/unpack.sh"
   },
   "repository": {
     "type": "git",
