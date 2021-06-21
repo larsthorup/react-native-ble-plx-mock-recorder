@@ -1,0 +1,12 @@
+{
+  "name": "react-native-ble-plx-mock-recorder-mocha-template",
+  "version": "0.0.1",
+  "description": "React Native template for react-native-ble-plx-mock-recorder",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/larsthorup/react-native-ble-plx-mock-recorder.git"
+  },
+  "author": "Lars Thorup <lars@zealake.com> (https://www.zealake.com/)",
+  "license": "MIT",
+  "scripts": {}
+}

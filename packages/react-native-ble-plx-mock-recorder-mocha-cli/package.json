@@ -1,0 +1,29 @@
+{
+  "name": "react-native-ble-plx-mock-recorder-mocha-cli",
+  "version": "0.0.1",
+  "description": "Test runner CLI for react-native-ble-plx mock recorder",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/larsthorup/react-native-ble-plx-mock-recorder.git"
+  },
+  "author": "Lars Thorup <lars@zealake.com> (https://www.zealake.com/)",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "c8": "c8 --reporter=lcov --reporter=text-summary mocha",
+    "eslint": "eslint . --fix --max-warnings 0 --ignore-path .gitignore",
+    "mocha": "mocha",
+    "test": "npm run eslint && npm run c8"
+  },
+  "dependencies": {
+    "chalk": "^4.1.1",
+    "mocha": "^8.4.0",
+    "util": "^0.12.3"
+  },
+  "devDependencies": {
+    "c8": "^7.7.2",
+    "chai": "^4.3.4",
+    "eslint": "^7.27.0",
+    "testdouble": "^3.16.1"
+  }
+}

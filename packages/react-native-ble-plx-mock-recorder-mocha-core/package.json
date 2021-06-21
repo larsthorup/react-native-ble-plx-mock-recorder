@@ -1,0 +1,20 @@
+{
+  "name": "react-native-ble-plx-mock-recorder-mocha-core",
+  "version": "0.0.1",
+  "description": "Shared library for react-native-ble-plx-mock-recorder",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/larsthorup/react-native-ble-plx-mock-recorder.git"
+  },
+  "author": "Lars Thorup <lars@zealake.com> (https://www.zealake.com/)",
+  "license": "MIT",
+  "type": "module",
+  "exports": "./index.js",
+  "scripts": {
+    "eslint": "eslint . --fix --max-warnings 0 --ignore-path .gitignore",
+    "test": "npm run eslint"
+  },
+  "devDependencies": {
+    "eslint": "^7.27.0"
+  }
+}

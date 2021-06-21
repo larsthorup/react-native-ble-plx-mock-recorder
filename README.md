@@ -1,6 +1,6 @@
 # react-native-ble-plx-mock-recorder
 
-Mock recorder tool for [react-native-ble-plx](https://www.npmjs.com/package/react-native-ble-plx).
+Mock recorder and playback tool for [react-native-ble-plx](https://www.npmjs.com/package/react-native-ble-plx).
 Enables fast and robust integration tests for your Bluetooth/BLE app UI.
 
 ## Overview

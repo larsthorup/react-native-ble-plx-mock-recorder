@@ -5,7 +5,10 @@
   "description": "Mock recorder tool for https://www.npmjs.com/package/react-native-ble-plx",
   "scripts": {
     "clean": "bash -c ./script/clean.sh",
-    "prepublish": "bash -c ./script/prepublish.sh"
+    "pack": "echo TODO pack",
+    "postinstall": "bash -c ./script/postinstall.sh && npm run pack && npm run unpack",
+    "prepublish": "bash -c ./script/prepublish.sh",
+    "unpack": "echo TODO unpack"
   },
   "repository": {
     "type": "git",
