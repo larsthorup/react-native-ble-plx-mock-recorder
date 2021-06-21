@@ -10,9 +10,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@testing-library/react-native": "^7.2.0",
     "react": "17.0.1",
     "react-native": "0.64.2",
-    "react-native-ble-plx": "^2.0.2"
+    "react-native-ble-plx": "^2.0.2",
+    "react-native-ble-plx-mock-recorder": "^0.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
@@ -25,6 +27,9 @@
     "react-test-renderer": "17.0.1"
   },
   "jest": {
-    "preset": "react-native"
+    "preset": "react-native",
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-native|@react-native|react-native-ble-plx|react-native-ble-plx-mock-recorder)/)"
+    ]
   }
 }

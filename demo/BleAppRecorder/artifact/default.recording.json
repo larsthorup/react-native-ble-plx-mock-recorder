@@ -1,0 +1,33 @@
+{
+  "records": [
+    {
+      "type": "command",
+      "command": "startDeviceScan",
+      "request": {
+        "uuidList": null,
+        "scanOptions": null
+      }
+    },
+    {
+      "type": "event",
+      "event": "deviceScan",
+      "args": {
+        "device": {
+          "id": "00:12:6F:BA:A7:74",
+          "localName": "BeoPlay A1",
+          "manufacturerData": "EAQ=",
+          "mtu": 23,
+          "name": "BeoPlay A1",
+          "rssi": -52
+        },
+        "error": null
+      },
+      "autoPlay": false
+    },
+    {
+      "type": "label",
+      "label": "scanned"
+    }
+  ],
+  "version": "1.0.0"
+}

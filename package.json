@@ -7,12 +7,14 @@
     "bump": "bash -c ./script/bump.sh",
     "clean": "bash -c ./script/clean.sh",
     "demo:app": "cd demo/BleApp && npm run android",
+    "demo:app:test": "cd demo/BleApp && npm run test",
     "demo:recorder": "cd demo/BleAppRecorder && npm test",
     "pack": "bash -c ./script/pack.sh",
     "postinstall": "bash -c ./script/postinstall.sh && npm run pack && npm run unpack",
     "publish": "npm run prepublish && bash -c ./script/publish.sh",
     "prepublish": "bash -c ./script/prepublish.sh",
-    "test": "bash -c ./script/test.sh",
+    "test": "bash -c ./script/test.sh && npm run demo:app:test",
+    "test:e2e": "bash -c ./script/test.sh && npm run demo:recorder && npm run demo:app:test",
     "unpack": "bash -c ./script/unpack.sh"
   },
   "repository": {

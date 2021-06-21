@@ -48,9 +48,7 @@ Contributions are welcome!
 test -z "$(git status --porcelain)" || echo clean workspace first
 git checkout main
 git pull
-npm test
-# npm run demo:test
-# npm run android (terminal 1)
+npm run test:e2e
 npm run bump
 npm run publish
 # git commit && git push
