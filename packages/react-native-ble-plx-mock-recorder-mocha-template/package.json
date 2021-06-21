@@ -8,5 +8,7 @@
   },
   "author": "Lars Thorup <lars@zealake.com> (https://www.zealake.com/)",
   "license": "MIT",
-  "scripts": {}
+  "scripts": {
+    "bump": "npm --no-git-tag-version version patch"
+  }
 }

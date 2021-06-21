@@ -55,3 +55,5 @@ npm run bump
 npm run publish
 # git commit && git push
 ```
+
+Then verify react-native-ble-plx-mock-recorder-mocha-template and publish it
