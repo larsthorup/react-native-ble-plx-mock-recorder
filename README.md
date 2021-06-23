@@ -36,7 +36,7 @@ npm run demo:recorder
 npm run demo:app:test
 ```
 
-Read how to [build your own demo](./doc/demo.md) from scratch.
+Read how to [build your own demo](./demo/README.md) from scratch.
 
 ## Getting started
 

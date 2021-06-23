@@ -46,7 +46,7 @@ Now, before we can write a test for our app, we will create a BLE traffic record
 
 ```bash
 cd ble-demo
-npx react-native init BleAppRecorder --template react-native-ble-plx-mocha-template
+npx react-native init BleAppRecorder --template react-native-ble-plx-mock-recorder-mocha-template
 cd BleAppRecorder
 ```
 
@@ -65,9 +65,13 @@ First, stop the "metro" terminal window that popped up when we ran BleApp in a p
 npm test
 ```
 
-Your phone should show something like this:
+Your phone will ask for the location permission, but do not click it, as the test runner will click it automatically.
+
+Then your phone should show something like this:
 
 ![](./images/bleAppRecorder.png)
+
+If your phone is slow, you might get a timeout, you can increase it in [`BleAppRecorder/src/test/setup.test.js`](./BleAppRecorder/src/test/setup.test.js).
 
 And a [recording file](./BleAppRecorder/artifact/default.recording.json) will have been created in `BleAppRecorder/artifact/default.recording.json`.
 
