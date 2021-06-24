@@ -38,7 +38,7 @@ npm run demo:app:test
 
 ## Getting started
 
-To get started, read how to [build your own demo](https://github.com/larsthorup/react-native-ble-plx-mock-recorder/demo/README.md) from scratch. Then apply the same steps to the app you would like to test.
+To get started, read how to [build your own demo](https://github.com/larsthorup/react-native-ble-plx-mock-recorder/tree/main/demo) from scratch. Then apply the same steps to the app you would like to test.
 
 ## API
 
@@ -46,9 +46,13 @@ TODO
 
 ## Architecture
 
-See [ARCHITECTURE.md](https://github.com/larsthorup/react-native-ble-plx-mock-recorder/ARCHITECTURE.md)
+See [ARCHITECTURE.md](https://github.com/larsthorup/react-native-ble-plx-mock-recorder/tree/main/ARCHITECTURE.md)
 
-![](https://github.com/larsthorup/react-native-ble-plx-mock-recorder/media/ble-mock-recorder-diagram-overview-small.png)
+![](./ble-mock-recorder-diagram-overview-small.png)
+
+## Limitations
+
+Currently a large part of the central API of `react-native-ble-plx` is implemented, but several methods, that have not yet been needed, are missing. They should be easy to add. Feel free to submit a Pull Request!
 
 ## Contributing
 
@@ -74,4 +78,4 @@ npm run publish
 # git commit && git push
 ```
 
-Then [manually verify](https://github.com/larsthorup/react-native-ble-plx-mock-recorder/packages/react-native-ble-plx-mock-recorder-mocha-template/README.md) local react-native-ble-plx-mock-recorder-mocha-template and publish that.
+Then [manually verify](https://github.com/larsthorup/react-native-ble-plx-mock-recorder/tree/main/packages/react-native-ble-plx-mock-recorder-mocha-template/README.md) local react-native-ble-plx-mock-recorder-mocha-template and publish that.
