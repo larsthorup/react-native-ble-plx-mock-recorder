@@ -38,7 +38,7 @@ npm run android
 
 Your phone should show something like this, with names of BLE devices near you:
 
-![](./images/bleApp.png)
+![](./media/bleApp.png)
 
 ## Bootstrap the recorder test app
 
@@ -69,7 +69,7 @@ Your phone will ask for the location permission, but do not click it, as the tes
 
 Then your phone should show something like this:
 
-![](./images/bleAppRecorder.png)
+![](./media/bleAppRecorder.png)
 
 If your phone is slow, you might get a timeout, you can increase it in [`BleAppRecorder/src/test/setup.test.js`](./BleAppRecorder/src/test/setup.test.js).
 
@@ -117,4 +117,4 @@ npm test
 
 Your terminal should show something like this:
 
-![](./images/App-test.png)
+![](./media/App-test.png)
