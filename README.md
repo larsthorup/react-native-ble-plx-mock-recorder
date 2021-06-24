@@ -15,6 +15,8 @@ You will create a seperate mock recorder app, using the "react-native-ble-plx-mo
 
 Then use this library to play back the BLE traffic every time you run your Jest UI tests, and enjoy the speed of up to 100 of tests per second.
 
+For more information, check out the [blog post](https://www.fullstackagile.eu/2021/06/24/bluetooth-ble-mock-recorder/).
+
 ## Prerequisites
 
 - A Bluetooth/BLE device, powered on, nearby, not connected to a phone.
