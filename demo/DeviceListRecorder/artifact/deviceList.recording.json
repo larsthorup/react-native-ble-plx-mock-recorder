@@ -1,0 +1,132 @@
+{
+  "records": [
+    {
+      "type": "command",
+      "command": "onStateChange",
+      "request": {
+        "emitCurrentState": true
+      }
+    },
+    {
+      "type": "event",
+      "event": "stateChange",
+      "args": {
+        "powerState": "PoweredOn"
+      },
+      "autoPlay": false
+    },
+    {
+      "type": "command",
+      "command": "startDeviceScan",
+      "request": {
+        "uuidList": null,
+        "scanOptions": null
+      }
+    },
+    {
+      "type": "event",
+      "event": "deviceScan",
+      "args": {
+        "device": {
+          "id": "12-34-56-78-9A-BC",
+          "localName": null,
+          "manufacturerData": null,
+          "name": "The Speaker",
+          "rssi": null
+        },
+        "error": null
+      },
+      "spec": {
+        "keep": 1
+      },
+      "autoPlay": false
+    },
+    {
+      "type": "label",
+      "label": "scanned"
+    },
+    {
+      "type": "command",
+      "command": "connectToDevice",
+      "request": {
+        "id": "12-34-56-78-9A-BC"
+      },
+      "response": {
+        "id": "12-34-56-78-9A-BC",
+        "localName": null,
+        "manufacturerData": null,
+        "name": "The Speaker",
+        "rssi": null
+      }
+    },
+    {
+      "type": "command",
+      "command": "discoverAllServicesAndCharacteristicsForDevice",
+      "request": {
+        "id": "12-34-56-78-9A-BC"
+      }
+    },
+    {
+      "type": "command",
+      "command": "servicesForDevice",
+      "request": {
+        "id": "12-34-56-78-9A-BC"
+      },
+      "response": [
+        {
+          "uuid": "00001801-0000-1000-8000-00805f9b34fb"
+        },
+        {
+          "uuid": "00001800-0000-1000-8000-00805f9b34fb"
+        },
+        {
+          "uuid": "0000180a-0000-1000-8000-00805f9b34fb"
+        },
+        {
+          "uuid": "0000180f-0000-1000-8000-00805f9b34fb"
+        },
+        {
+          "uuid": "0000fe89-0000-1000-8000-00805f9b34fb"
+        },
+        {
+          "uuid": "00001803-0000-1000-8000-00805f9b34fb"
+        },
+        {
+          "uuid": "00001802-0000-1000-8000-00805f9b34fb"
+        }
+      ]
+    },
+    {
+      "type": "command",
+      "command": "readCharacteristicForDevice",
+      "request": {
+        "characteristicUUID": "00002a19-0000-1000-8000-00805f9b34fb",
+        "id": "12-34-56-78-9A-BC",
+        "serviceUUID": "0000180f-0000-1000-8000-00805f9b34fb"
+      },
+      "response": {
+        "serviceUUID": "0000180f-0000-1000-8000-00805f9b34fb",
+        "uuid": "00002a19-0000-1000-8000-00805f9b34fb",
+        "value": "Kg=="
+      },
+      "debug": {
+        "value": "<Buffer 2a> '*'"
+      }
+    },
+    {
+      "type": "command",
+      "command": "readRSSIForDevice",
+      "request": {
+        "id": "12-34-56-78-9A-BC"
+      },
+      "response": {
+        "id": "12-34-56-78-9A-BC",
+        "localName": null,
+        "manufacturerData": null,
+        "name": "The Speaker",
+        "rssi": -42
+      }
+    }
+  ],
+  "version": "1.0.0"
+}
