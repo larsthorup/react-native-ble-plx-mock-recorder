@@ -3,15 +3,15 @@
 [![Build Status](https://github.com/larsthorup/react-native-ble-plx-mock-recorder/actions/workflows/ci.yml/badge.svg)](https://github.com/larsthorup/react-native-ble-plx-mock-recorder/actions/workflows/ci.yml)
 
 Mock recorder and playback tool for [react-native-ble-plx](https://www.npmjs.com/package/react-native-ble-plx).
-Enables fast and robust integration tests for your Bluetooth/BLE app UI.
+Enables fast and robust integration tests for your Bluetooth/BLE app.
 
 ## Overview
 
-This tool is targeted developers of React Native apps that talks to Bluetooth/BLE devices. Avoid having a lot of slow and fragile end-to-end tests taking more than an hour to run on physical devices connected to a physical CI server!
+This tool will help developers of React Native apps that talk to Bluetooth/BLE devices. Avoid having a lot of slow and fragile end-to-end tests taking more than an hour to run on physical devices and a physical CI server!
 
-If you can run your UI tests with _pre-recorded_ BLE traffic, you get very _fast and robust_ tests, that are actual _integration tests_, since you are not writing your mocks by hand.
+If you can run your UI tests with _pre-recorded_ BLE traffic, you get very **fast and robust** tests, that are actual **integration tests**, since you are not writing your mocks by hand.
 
-You will create a seperate mock recorder app, using the "react-native-ble-plx-mock-recorder-mocha-template" template for React Native to occasionally record actual trafic needed by your tests.
+You will create a separate mock recorder app, using the "react-native-ble-plx-mock-recorder-mocha-template" template for React Native to occasionally record actual traffic needed by your tests.
 
 Then use this library to play back the BLE traffic every time you run your Jest UI tests, and enjoy the speed of up to 100 of tests per second.
 
@@ -20,7 +20,7 @@ For more information, check out the [blog post](https://www.fullstackagile.eu/20
 ## Prerequisites
 
 - A Bluetooth/BLE device, powered on, nearby, not connected to a phone.
-- A react-native app talking to the BLE device.
+- A React Native app talking to the BLE device.
 - An Android phone, plugged into your computer.
   - (Support for iPhone is planned).
 - A React Native development environment: https://reactnative.dev/docs/environment-setup.
@@ -54,7 +54,7 @@ See [ARCHITECTURE.md](https://github.com/larsthorup/react-native-ble-plx-mock-re
 
 ## Limitations
 
-Currently a large part of the central API of `react-native-ble-plx` is implemented, but several methods, that have not yet been needed, are missing. They should be easy to add. Feel free to submit a Pull Request!
+Currently a large part of the central API of `react-native-ble-plx` is implemented, but several methods which have not been needed yet, are missing. They should be easy to add. Feel free to submit a Pull Request!
 
 ## Contributing
 
