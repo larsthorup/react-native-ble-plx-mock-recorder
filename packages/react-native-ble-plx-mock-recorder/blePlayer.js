@@ -144,7 +144,9 @@ export class BlePlayer {
             const { characteristic, error } = record.args;
             if (characteristic) {
               const { serviceUUID, uuid, value } = characteristic;
-              const listener = (this._characteristicListener[serviceUUID] || {})[uuid];
+              const serviceUUIDlower = serviceUUID.toLowerCase();
+              const uuidLower = uuid.toLowerCase();
+              const listener = (this._characteristicListener[serviceUUIDlower] || {})[uuidLower];
               if (listener) {
                 try {
                   const characteristicMock = { serviceUUID, uuid, value };
@@ -155,7 +157,7 @@ export class BlePlayer {
                   console.error(err);
                 }
               } else {
-                console.log(this._characteristicListener, { serviceUUID, uuid });
+                console.log(this._characteristicListener, { serviceUUIDlower, uuidLower });
                 console.warn(`BleManagerMock: event cannot be delivered, as bleManager.monitorCharacteristicForDevice has not yet been called: ${JSON.stringify(record)} or subscription was removed`);
               }
             }
@@ -415,16 +417,18 @@ export class BleManagerMock {
    */
   monitorCharacteristicForDevice(id, serviceUUID, characteristicUUID, listener) {
     this.blePlayer._expectCommand('monitorCharacteristicForDevice', { id, serviceUUID, characteristicUUID });
-    this.blePlayer._characteristicListener[serviceUUID] = this.blePlayer._characteristicListener[serviceUUID] || {};
-    if (this.blePlayer._characteristicListener[serviceUUID][characteristicUUID]) {
+    const serviceUUIDlower = serviceUUID.toLowerCase();
+    const characteristicUUIDlower = characteristicUUID.toLowerCase();
+    this.blePlayer._characteristicListener[serviceUUIDlower] = this.blePlayer._characteristicListener[serviceUUIDlower] || {};
+    if (this.blePlayer._characteristicListener[serviceUUIDlower][characteristicUUIDlower]) {
       console.error(`Warning: missing call to monitorCharacteristicForDevice('${id}', '${serviceUUID}', '${characteristicUUID}).remove()`);
     }
-    this.blePlayer._characteristicListener[serviceUUID][characteristicUUID] = listener;
+    this.blePlayer._characteristicListener[serviceUUIDlower][characteristicUUIDlower] = listener;
     this.blePlayer._autoPlayEvents(); // Note: eventually consider if we should do this on all commands
     return {
       remove: () => {
-        if (this.blePlayer._characteristicListener[serviceUUID]) {
-          delete this.blePlayer._characteristicListener[serviceUUID][characteristicUUID];
+        if (this.blePlayer._characteristicListener[serviceUUIDlower]) {
+          delete this.blePlayer._characteristicListener[serviceUUIDlower][characteristicUUIDlower];
         }
       },
     };
