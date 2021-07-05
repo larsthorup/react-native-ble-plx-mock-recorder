@@ -1,6 +1,6 @@
 {
   "name": "react-native-ble-plx-mock-recorder-mocha-template",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "React Native template for react-native-ble-plx-mock-recorder",
   "repository": {
     "type": "git",
