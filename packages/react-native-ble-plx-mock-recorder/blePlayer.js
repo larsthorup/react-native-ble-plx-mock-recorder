@@ -22,6 +22,8 @@ export class BlePlayer {
   /** @param { BleManagerMock } bleManagerMock */
   constructor(bleManagerMock) {
     this.bleManagerMock = bleManagerMock;
+    /** @type { boolean } */
+    this.trace = false;
     /** @type { Record<UUID, Record<UUID, CharacteristicListener>> } */
     this._characteristicListener = {};
     /** @type { DeviceDisconnectedListener | undefined } */
@@ -65,7 +67,9 @@ export class BlePlayer {
   _popRecord() {
     const record = this._peekRecord();
     ++this._nextRecordIndex;
-    // console.trace(`popping: ${JSON.stringify(record)}`);
+    if (this.trace) {
+      console.trace(`popping: ${JSON.stringify(record)}`);
+    }
     return record;
   }
 
@@ -294,7 +298,7 @@ export class BleManagerMock {
    */
   onDeviceDisconnected(id, listener) {
     if (this.blePlayer._deviceDisconnectedListener) {
-      this.blePlayer._error('Cannot call "onDeviceDisconnected()" until calling "remove()" on previous subscription');
+      this.blePlayer._error('Cannot call "onDeviceDisconnected()" until calling "remove()" on previous subscription', true);
     }
     this.blePlayer._expectCommand('onDeviceDisconnected', { id });
     this.blePlayer._deviceDisconnectedListener = listener;
@@ -334,7 +338,7 @@ export class BleManagerMock {
     }
   }
 
-  async stopDeviceScan() {
+  stopDeviceScan() {
     // Note: if stopDeviceScan() is called from within an exception handler of the code-under-test,
     // it can mess up that error reporting, so we will skip throwing in this case.
     // Note: eventually consider if this approach needs to be generalized
