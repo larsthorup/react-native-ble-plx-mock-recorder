@@ -61,6 +61,53 @@ describe(BleManagerMock.name, () => {
       value: 'some-value',
     });
   });
+
+  it(BleManagerMock.prototype.onDeviceDisconnected.name, async () => {
+    const bleManager = new BleManagerMock();
+    const { blePlayer } = bleManager;
+    blePlayer.mockWith({
+      records: [
+        {
+          type: 'command',
+          command: 'onDeviceDisconnected',
+          request: {
+            id: '12-34-56-78-9A-BC'
+          },
+          response: undefined,
+        },
+        {
+          type: 'event',
+          event: 'deviceDisconnected',
+          args: {
+            device: {
+              id: '12-34-56-78-9A-BC',
+              localName: null,
+              manufacturerData: null,
+              mtu: 0,
+              name: null,
+              rssi: null,
+            },
+            error: null,
+          },
+          autoPlay: true,
+        },
+        {
+          type: 'label',
+          label: 'device-disconnected',
+        },
+      ],
+      version,
+    });
+    const [device, subscription] = await new Promise((resolve) => {
+      const s = bleManager.onDeviceDisconnected('12-34-56-78-9A-BC', (error, d) => {
+        resolve([d, s]);
+      });
+      blePlayer.playUntil('device-disconnected');
+    });
+    expect(device.id).to.equal('12-34-56-78-9A-BC');
+    subscription.remove();
+    // TODO: verify multiple subscriptions
+  });
 });
 
 describe('BlePlayer', () => {

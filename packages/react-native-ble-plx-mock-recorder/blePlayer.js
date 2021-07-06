@@ -167,6 +167,22 @@ export class BlePlayer {
             }
             break;
           }
+          case 'deviceDisconnected': {
+            const { _deviceDisconnectedListener: listener } = this;
+            if (listener) {
+              const { device, error } = record.args;
+              try {
+                // Note: handle async exception
+                Promise.resolve(listener(error, device)).catch(console.error);
+              } catch (err) {
+                // Note: handle sync exception
+                console.error(err);
+              }
+            } else {
+              console.warn(`BleManagerMock: event cannot be delivered, as bleManager.onDeviceDisconnected has not yet been called: ${JSON.stringify(record)}`);
+            }
+            break;
+          }
           case 'deviceScan': {
             const { _deviceScanListener: listener } = this;
             if (listener) {
@@ -200,7 +216,7 @@ export class BlePlayer {
             break;
           }
           default:
-            throw new Error(`BleManagerMock: Unrecognized event "${event}" in record ${JSON.stringify(record)}`);
+            throw new Error(`BleManagerMock: Unrecognized event in record ${JSON.stringify(record)}`);
         }
         break;
       }
