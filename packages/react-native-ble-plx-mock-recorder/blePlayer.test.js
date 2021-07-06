@@ -18,8 +18,8 @@ describe(BleManagerMock.name, () => {
           command: 'monitorCharacteristicForDevice',
           request: {
             id: 'some-device-id',
-            serviceUUID: 'some-service-uuid',
-            characteristicUUID: 'some-characteristic-uuid',
+            serviceUUID: 'Some-Service-Uuid',
+            characteristicUUID: 'Some-Characteristic-Uuid',
           },
           response: undefined,
         },
@@ -28,8 +28,9 @@ describe(BleManagerMock.name, () => {
           event: 'characteristic',
           args: {
             characteristic: {
-              serviceUUID: 'some-service-uuid',
-              uuid: 'some-characteristic-uuid',
+              // Note: test case insensitive listener lookup
+              serviceUUID: 'some-service-UUID',
+              uuid: 'some-characteristic-UUID',
               value: 'some-value',
             },
             error: null,
@@ -44,7 +45,7 @@ describe(BleManagerMock.name, () => {
       version,
     });
     const characteristic = await new Promise((resolve, reject) => {
-      const subscription = bleManager.monitorCharacteristicForDevice('some-device-id', 'some-service-uuid', 'some-characteristic-uuid', (err, c) => {
+      const subscription = bleManager.monitorCharacteristicForDevice('some-device-id', 'Some-Service-Uuid', 'Some-Characteristic-Uuid', (err, c) => {
         if (err) {
           reject(err);
         } else {
@@ -55,8 +56,8 @@ describe(BleManagerMock.name, () => {
       subscription.remove();
     });
     expect(characteristic).to.deep.equal({
-      serviceUUID: 'some-service-uuid',
-      uuid: 'some-characteristic-uuid',
+      serviceUUID: 'some-service-UUID',
+      uuid: 'some-characteristic-UUID',
       value: 'some-value',
     });
   });
