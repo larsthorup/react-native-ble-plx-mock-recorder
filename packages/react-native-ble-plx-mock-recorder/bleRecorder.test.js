@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as td from 'testdouble';
-import { parseBleRecorderEvent, parseBleRecord } from './bleRecorderJsonProtocol.js';
 import { BleRecorder, BleManagerSpy } from './bleRecorder.js';
+import { MemoryLogger } from './test/memoryLogger.js';
 
 /** @typedef { import('react-native-ble-plx').BleManager } BleManager */
 /** @typedef { import('react-native-ble-plx').Characteristic } Characteristic */
@@ -9,30 +9,7 @@ import { BleRecorder, BleManagerSpy } from './bleRecorder.js';
 /** @typedef { import('react-native-ble-plx').Service } Service */
 /** @typedef { import('react-native-ble-plx').State } State */
 
-/** @typedef { import('./bleRecorder.js').BleRecord } BleRecord */
-/** @typedef { import('./bleRecorder.js').RecorderEvent } RecorderEvent */
-
 const BleManagerFake = td.constructor(BleManagerSpy);
-
-class LoggerSpy {
-  constructor() {
-    /** @type { BleRecord[] } */
-    this.bleLog = [];
-    /** @type { RecorderEvent[] } */
-    this.recorderEventLog = [];
-    /** @type { (line: string) => void } */
-    this.logger = (line) => {
-      const bleRecord = parseBleRecord(line);
-      const recorderEvent = parseBleRecorderEvent(line);
-      if (bleRecord) {
-        this.bleLog.push(bleRecord);
-      }
-      if (recorderEvent) {
-        this.recorderEventLog.push(recorderEvent);
-      }
-    };
-  }
-}
 
 describe('bleRecorder', () => {
   /** @type { BleManager } */
@@ -44,28 +21,28 @@ describe('bleRecorder', () => {
 
   describe('minimal scenario', () => {
     it('should record an empty recording file', () => {
-      const { bleLog, recorderEventLog, logger } = new LoggerSpy();
+      const { recording, recorderEventLog, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       bleRecorder.close();
       expect(recorderEventLog).to.deep.equal([
         { event: 'init', name: 'default', version: '1.0.0' },
         { event: 'save', name: 'default' },
       ]);
-      expect(bleLog).to.deep.equal([]);
+      expect(recording.records).to.deep.equal([]);
     });
   });
 
   describe('recordingName', () => {
     it('should name the recording file', () => {
       const recordingName = 'some-recording-name';
-      const { bleLog, recorderEventLog, logger } = new LoggerSpy();
+      const { recording, recorderEventLog, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, recordingName, logger });
       bleRecorder.close();
       expect(recorderEventLog).to.deep.equal([
         { event: 'init', name: 'some-recording-name', version: '1.0.0' },
         { event: 'save', name: 'some-recording-name' },
       ]);
-      expect(bleLog).to.deep.equal([]);
+      expect(recording.records).to.deep.equal([]);
     });
   });
 
@@ -82,7 +59,7 @@ describe('bleRecorder', () => {
           listener(null, { id: 'some-device-id', name: 'some-device-name' });
         });
 
-        const { bleLog, logger } = new LoggerSpy();
+        const { recording, logger } = new MemoryLogger();
         const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
         const bleManager = bleRecorder.bleManagerSpy;
 
@@ -92,7 +69,7 @@ describe('bleRecorder', () => {
         bleRecorder.close();
 
         // then all scans are recorded
-        expect(bleLog).to.deep.equal([
+        expect(recording.records).to.deep.equal([
           {
             type: 'command',
             command: 'startDeviceScan',
@@ -158,14 +135,14 @@ describe('bleRecorder', () => {
             },
           },
         };
-        const { bleLog, logger } = new LoggerSpy();
+        const { recording, logger } = new MemoryLogger();
         const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, deviceMap, logger });
         const bleManager = bleRecorder.bleManagerSpy;
 
         bleManager.startDeviceScan(uuidList, scanOptions, () => { });
         bleRecorder.close();
 
-        expect(bleLog).to.deep.equal([
+        expect(recording.records).to.deep.equal([
           {
             type: 'command',
             command: 'startDeviceScan',
@@ -195,7 +172,7 @@ describe('bleRecorder', () => {
           listener(null, { id: 'some-device-id', name: 'some-device-name' });
         });
 
-        const { bleLog, logger } = new LoggerSpy();
+        const { recording, logger } = new MemoryLogger();
         const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
         const bleManager = bleRecorder.bleManagerSpy;
 
@@ -207,7 +184,7 @@ describe('bleRecorder', () => {
         bleRecorder.close();
 
         // then only the specified number of scans are recorded
-        expect(bleLog).to.deep.equal([
+        expect(recording.records).to.deep.equal([
           {
             type: 'command',
             command: 'startDeviceScan',
@@ -240,7 +217,7 @@ describe('bleRecorder', () => {
           listener({ message: 'some error message' });
         });
 
-        const { bleLog, logger } = new LoggerSpy();
+        const { recording, logger } = new MemoryLogger();
         const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
         const bleManager = bleRecorder.bleManagerSpy;
 
@@ -249,7 +226,7 @@ describe('bleRecorder', () => {
         bleRecorder.close();
 
         // then the scan error is recorded
-        expect(bleLog).to.deep.equal([
+        expect(recording.records).to.deep.equal([
           {
             type: 'command',
             command: 'startDeviceScan',
@@ -276,7 +253,7 @@ describe('bleRecorder', () => {
     describe('minimal scenario', () => {
       it('should record literal uuids and values', async () => {
         td.when(bleManagerFake.readCharacteristicForDevice('some-device-id', 'some-service-uuid', 'some-characteristic-uuid')).thenResolve({ value: 'Z2Rj' });
-        const { bleLog, logger } = new LoggerSpy();
+        const { recording, logger } = new MemoryLogger();
         const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
         const bleManager = bleRecorder.bleManagerSpy;
 
@@ -286,7 +263,7 @@ describe('bleRecorder', () => {
         bleRecorder.close();
 
         // then command is recorded
-        expect(bleLog).to.deep.equal([
+        expect(recording.records).to.deep.equal([
           {
             type: 'command',
             command: 'readCharacteristicForDevice',
@@ -311,7 +288,7 @@ describe('bleRecorder', () => {
     describe('queueRecordValue', () => {
       it('should record specified value', async () => {
         td.when(bleManagerFake.readCharacteristicForDevice('some-device-id', 'some-service-uuid', 'some-characteristic-uuid')).thenResolve({ value: 'Kg==' });
-        const { bleLog, logger } = new LoggerSpy();
+        const { recording, logger } = new MemoryLogger();
         const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
         const bleManager = bleRecorder.bleManagerSpy;
 
@@ -322,7 +299,7 @@ describe('bleRecorder', () => {
         bleRecorder.close();
 
         // then command is recorded
-        expect(bleLog).to.deep.equal([
+        expect(recording.records).to.deep.equal([
           {
             type: 'command',
             command: 'readCharacteristicForDevice',
@@ -347,7 +324,7 @@ describe('bleRecorder', () => {
     describe('nameFromUuid', () => {
       it('should include names for uuids', async () => {
         td.when(bleManagerFake.readCharacteristicForDevice('some-device-id', 'some-service-uuid', 'some-characteristic-uuid')).thenResolve({ value: 'Kg==' });
-        const { bleLog, logger } = new LoggerSpy();
+        const { recording, logger } = new MemoryLogger();
 
         // given map of name per uuid
         const nameFromUuid = {
@@ -365,7 +342,7 @@ describe('bleRecorder', () => {
         bleRecorder.close();
 
         // then command is recorded
-        expect(bleLog).to.deep.equal([
+        expect(recording.records).to.deep.equal([
           {
             type: 'command',
             command: 'readCharacteristicForDevice',
@@ -392,14 +369,14 @@ describe('bleRecorder', () => {
 
   describe('state', () => {
     it('should record command with request and response', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.state()).thenResolve(/** @type { State } */('PoweredOn'));
       const bleManager = bleRecorder.bleManagerSpy;
       const state = await bleManager.state();
       expect(state).to.equal('PoweredOn');
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'state',
@@ -416,7 +393,7 @@ describe('bleRecorder', () => {
         listener('some-state');
       });
 
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       const bleManager = bleRecorder.bleManagerSpy;
 
@@ -425,7 +402,7 @@ describe('bleRecorder', () => {
       bleRecorder.close();
 
       // then all scans are recorded
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'onStateChange',
@@ -446,13 +423,13 @@ describe('bleRecorder', () => {
   });
   describe('stopDeviceScan', () => {
     it('should record command', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.stopDeviceScan()).thenResolve();
       const bleManager = bleRecorder.bleManagerSpy;
       await bleManager.stopDeviceScan();
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'stopDeviceScan',
@@ -463,14 +440,14 @@ describe('bleRecorder', () => {
   });
   describe('isDeviceConnected', () => {
     it('should record command with request and response', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.isDeviceConnected('some-device-id')).thenResolve(true);
       const bleManager = bleRecorder.bleManagerSpy;
       const isConnected = await bleManager.isDeviceConnected('some-device-id');
       expect(isConnected).to.be.true;
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'isDeviceConnected',
@@ -484,14 +461,14 @@ describe('bleRecorder', () => {
   });
   describe('readRSSIForDevice', () => {
     it('should record command with request and response', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.readRSSIForDevice('some-device-id')).thenResolve({ rssi: -42 });
       const bleManager = bleRecorder.bleManagerSpy;
       const { rssi } = await bleManager.readRSSIForDevice('some-device-id');
       expect(rssi).to.equal(-42);
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'readRSSIForDevice',
@@ -511,7 +488,7 @@ describe('bleRecorder', () => {
   });
   describe('connectToDevice', () => {
     it('should record command with request and response', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.connectToDevice('some-device-id', { autoConnect: false })).thenResolve({
         id: 'some-device-id',
@@ -520,7 +497,7 @@ describe('bleRecorder', () => {
       const device = await bleManager.connectToDevice('some-device-id', { autoConnect: false });
       expect(device.id).to.equal('some-device-id');
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'connectToDevice',
@@ -543,14 +520,14 @@ describe('bleRecorder', () => {
   });
   describe('connectedDevices', () => {
     it('should record command with request and response', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.connectedDevices(['some-uuid'])).thenResolve([/** @type { Device } */({ id: 'some-device-id' })]);
       const bleManager = bleRecorder.bleManagerSpy;
       const deviceList = await bleManager.connectedDevices(['some-uuid']);
       expect(deviceList).to.deep.equal([{ id: 'some-device-id' }]);
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'connectedDevices',
@@ -577,7 +554,7 @@ describe('bleRecorder', () => {
         listener(null, { id: 'some-device-id' });
       });
 
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       const bleManager = bleRecorder.bleManagerSpy;
 
@@ -586,7 +563,7 @@ describe('bleRecorder', () => {
       bleRecorder.close();
 
       // then all scans are recorded
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'onDeviceDisconnected',
@@ -614,14 +591,14 @@ describe('bleRecorder', () => {
   });
   describe('requestMTUForDevice', () => {
     it('should record command with request and response', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.requestMTUForDevice('some-device-id', 96)).thenResolve({ id: 'some-device-id', mtu: 96 });
       const bleManager = bleRecorder.bleManagerSpy;
       const { mtu } = await bleManager.requestMTUForDevice('some-device-id', 96);
       expect(mtu).to.equal(96);
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'requestMTUForDevice',
@@ -643,13 +620,13 @@ describe('bleRecorder', () => {
   });
   describe('discoverAllServicesAndCharacteristicsForDevice', () => {
     it('should record command with request and response', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.discoverAllServicesAndCharacteristicsForDevice('some-device-id')).thenResolve(/** @type { Device } */{ id: 'some-device-id' });
       const bleManager = bleRecorder.bleManagerSpy;
       await bleManager.discoverAllServicesAndCharacteristicsForDevice('some-device-id');
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'discoverAllServicesAndCharacteristicsForDevice',
@@ -662,14 +639,14 @@ describe('bleRecorder', () => {
   });
   describe('devices', () => {
     it('should record command with request and response', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.devices(['some-device-id'])).thenResolve([/** @type { Device } */({ id: 'some-device-id' })]);
       const bleManager = bleRecorder.bleManagerSpy;
       const deviceList = await bleManager.devices(['some-device-id']);
       expect(deviceList).to.deep.equal([{ id: 'some-device-id' }]);
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'devices',
@@ -691,14 +668,14 @@ describe('bleRecorder', () => {
   });
   describe('servicesForDevice', () => {
     it('should record command with request and response', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.servicesForDevice('some-device-id')).thenResolve([/** @type { Service } */({ uuid: 'some-service-uuid' })]);
       const bleManager = bleRecorder.bleManagerSpy;
       const serviceList = await bleManager.servicesForDevice('some-device-id');
       expect(serviceList).to.deep.equal([{ uuid: 'some-service-uuid' }]);
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'servicesForDevice',
@@ -714,14 +691,14 @@ describe('bleRecorder', () => {
   });
   describe('characteristicsForDevice', () => {
     it('should record command with request and response', async () => {
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       td.when(bleManagerFake.characteristicsForDevice('some-device-id', 'some-service-uuid')).thenResolve([/** @type { Characteristic } */({ uuid: 'some-characteristic-uuid' })]);
       const bleManager = bleRecorder.bleManagerSpy;
       const characteristicList = await bleManager.characteristicsForDevice('some-device-id', 'some-service-uuid');
       expect(characteristicList).to.deep.equal([{ uuid: 'some-characteristic-uuid' }]);
       bleRecorder.close();
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'characteristicsForDevice',
@@ -747,7 +724,7 @@ describe('bleRecorder', () => {
         listener(null, { uuid: 'some-characteristic-uuid', value: 'Kg==' });
       });
 
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       const bleManager = bleRecorder.bleManagerSpy;
 
@@ -756,7 +733,7 @@ describe('bleRecorder', () => {
       bleRecorder.close();
 
       // then all scans are recorded
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'monitorCharacteristicForDevice',
@@ -788,7 +765,7 @@ describe('bleRecorder', () => {
   describe('writeCharacteristicWithResponseForDevice', () => {
     it('should record literal uuids and values', async () => {
       td.when(bleManagerFake.writeCharacteristicWithResponseForDevice('some-device-id', 'some-service-uuid', 'some-characteristic-uuid', 'Z2Rj')).thenResolve(/** @type { Characteristic} */{});
-      const { bleLog, logger } = new LoggerSpy();
+      const { recording, logger } = new MemoryLogger();
       const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
       const bleManager = bleRecorder.bleManagerSpy;
 
@@ -797,7 +774,7 @@ describe('bleRecorder', () => {
       bleRecorder.close();
 
       // then command is recorded
-      expect(bleLog).to.deep.equal([
+      expect(recording.records).to.deep.equal([
         {
           type: 'command',
           command: 'writeCharacteristicWithResponseForDevice',
