@@ -234,25 +234,18 @@ export class BleManagerSpy {
     const subscription = await this._bleManager.onDeviceDisconnected(
       deviceId,
       (error, device) => {
-        if (error) {
-          const { message } = error;
-          this._recorder._recordEvent({
-            event: 'deviceDisconnected',
-            args: {
-              device: null,
-              error: { message },
-            },
-          });
-        } else if (device) {
+        if (device) {
           this._recorder._recordEvent({
             event: 'deviceDisconnected',
             args: {
               device: this._recorder._recordDevice(device.id),
-              error: null,
+              error: error ? { message: error.message } : null,
             },
           });
+          listener(error, device);
+        } else {
+          // Note: device cannot be null according to the docs, so the type is wrong          
         }
-        listener(error, device);
       },
     );
     return subscription;

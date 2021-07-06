@@ -58,9 +58,10 @@ describe(BleManagerMock.name, () => {
     });
     const { recording, logger } = new MemoryLogger();
     const bleRecorder = new BleRecorder({ bleManager: bleManagerFake, logger });
-    // given a recording with a device disconnection listener
+    // given a recording with two device disconnection listener
     bleRecorder.bleManagerSpy.onDeviceDisconnected('some-device-id', () => { });
     bleRecorder.label('device-disconnected');
+    bleRecorder.bleManagerSpy.onDeviceDisconnected('some-device-id', () => { });
     bleRecorder.close();
     const bleManager = new BleManagerMock();
     const { blePlayer } = bleManager;
@@ -77,9 +78,12 @@ describe(BleManagerMock.name, () => {
       blePlayer.playUntil('device-disconnected');
     });
 
-    // when removing the subscription again
+    // when adding another listener before removing the first subscription
+    const subscription2 = bleManager.onDeviceDisconnected('some-device-id', () => { });
+
+    // when removing the subscriptions again
     subscription.remove();
-    // TODO: verify multiple subscriptions
+    subscription2.remove();
   });
 });
 

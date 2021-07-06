@@ -85,7 +85,7 @@
 /** @typedef { { characteristic: Characteristic | null, error: BleError | null } } CharacteristicEventArgs */
 /** @typedef { { event: 'characteristic', args: CharacteristicEventArgs } } CharacteristicEventProps */
 
-/** @typedef { { device: Device | null, error: BleError | null } } DeviceDisconnectedEventArgs */
+/** @typedef { { device: Device, error: BleError | null } } DeviceDisconnectedEventArgs */
 /** @typedef { { event: 'deviceDisconnected', args: DeviceDisconnectedEventArgs } } DeviceDisconnectedEventProps */
 
 /** @typedef { { device: Device | null, error: BleError | null } } DeviceScanEventArgs */
@@ -115,7 +115,7 @@
 /** @typedef { { records: BleRecord[], version: string } } Recording */
 
 /** @typedef { (error: BleError | null, characteristic: Characteristic | null) => void } CharacteristicListener */
-/** @typedef { (error: BleError | null, device: Device | null) => void } DeviceDisconnectedListener */
+/** @typedef { (error: BleError | null, device: Device) => void } DeviceDisconnectedListener */
 /** @typedef { (error: BleError | null, scannedDevice: Device | null) => void } DeviceScanListener */
 /** @typedef { (newState: State) => void } StateChangeListener */
 

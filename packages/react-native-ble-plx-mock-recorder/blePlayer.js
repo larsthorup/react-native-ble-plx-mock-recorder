@@ -5,7 +5,7 @@ import { recordingFileFormatVersion } from './recording.js';
 /** @typedef { import('react-native-ble-plx').ConnectionOptions } ConnectionOptions */
 /** @typedef { import('react-native-ble-plx').DeviceId } DeviceId */
 /** @typedef { import('react-native-ble-plx').State } State */
-/** @typedef { import('react-native-ble-plx').Subscription } Subscription */
+/** @typedef { import('react-native-ble-plx').Subscription } BleSubscription */
 /** @typedef { import('react-native-ble-plx').UUID } UUID */
 
 /** @typedef { import('./recording').BleError } BleError */
@@ -18,20 +18,63 @@ import { recordingFileFormatVersion } from './recording.js';
 /** @typedef { import('./recording').DeviceDisconnectedListener } DeviceDisconnectedListener */
 /** @typedef { import('./recording').DeviceScanListener } DeviceScanListener */
 /** @typedef { import('./recording').StateChangeListener } StateChangeListener */
+
+/**
+ * @template T
+ * @constructor
+ * @param { T } listener 
+ * @param { SubscriptionSet<T> } subscriptionSet 
+ */
+function Subscription(listener, subscriptionSet) {
+  this.subscriptionSet = subscriptionSet;
+  this.listener = listener;
+}
+Subscription.prototype.remove = function () {
+  this.subscriptionSet.remove(this);
+};
+
+/**
+ * @template T
+ * @constructor
+ */
+function SubscriptionSet() {
+  /** @type { Subscription<T>[] } */
+  this._set = [];
+}
+SubscriptionSet.prototype.listeners = function () {
+  return this._set.map((s) => s.listener);
+};
+
+/**
+ * @param { T } listener 
+ */
+SubscriptionSet.prototype.add = function (listener) {
+  const subscription = new Subscription(listener, this);
+  this._set.push(subscription);
+  return subscription;
+};
+
+/**
+ * @param { Subscription<T> } subscription 
+ */
+SubscriptionSet.prototype.remove = function (subscription) {
+  this._set = this._set.filter((s) => s !== subscription);
+};
+
 export class BlePlayer {
   /** @param { BleManagerMock } bleManagerMock */
   constructor(bleManagerMock) {
     this.bleManagerMock = bleManagerMock;
     /** @type { boolean } */
     this.trace = false;
-    /** @type { Record<UUID, Record<UUID, CharacteristicListener>> } */
-    this._characteristicListener = {};
-    /** @type { DeviceDisconnectedListener | undefined } */
-    this._deviceDisconnectedListener = undefined;
-    /** @type { DeviceScanListener | undefined } */
-    this._deviceScanListener = undefined;
-    /** @type { StateChangeListener | undefined }*/
-    this._stateChangeListener = undefined;
+    /** @type { Record<UUID, Record<UUID, SubscriptionSet<CharacteristicListener>>> } */
+    this._characteristicSubscriptions = {};
+    /** @type { Record<UUID, SubscriptionSet<DeviceDisconnectedListener>> } */
+    this._deviceDisconnectedSubscriptions = {};
+    /** @type { SubscriptionSet<DeviceScanListener> } */
+    this._deviceScanSubscriptions = new SubscriptionSet();
+    /** @type { SubscriptionSet<StateChangeListener> }*/
+    this._stateChangeSubscriptions = new SubscriptionSet();
     /** @type { Recording } */
     this._recording = { records: [], version: recordingFileFormatVersion };
     /** @type { number } */
@@ -39,10 +82,10 @@ export class BlePlayer {
   }
 
   _reset() {
-    this._characteristicListener = {};
-    this._deviceDisconnectedListener = undefined;
-    this._deviceScanListener = undefined;
-    this._stateChangeListener = undefined;
+    this._characteristicSubscriptions = {};
+    this._deviceDisconnectedSubscriptions = {};
+    this._deviceScanSubscriptions = new SubscriptionSet();
+    this._stateChangeSubscriptions = new SubscriptionSet();
     this._recording = { records: [], version: recordingFileFormatVersion };
     this._nextRecordIndex = 0;
   }
@@ -150,33 +193,40 @@ export class BlePlayer {
               const { serviceUUID, uuid, value } = characteristic;
               const serviceUUIDlower = serviceUUID.toLowerCase();
               const uuidLower = uuid.toLowerCase();
-              const listener = (this._characteristicListener[serviceUUIDlower] || {})[uuidLower];
-              if (listener) {
-                try {
-                  const characteristicMock = { serviceUUID, uuid, value };
-                  // Note: handle async exception
-                  Promise.resolve(listener(error, characteristicMock)).catch(console.error);
-                } catch (err) {
-                  // Note: handle sync exception
-                  console.error(err);
+              const subscriptions = (this._characteristicSubscriptions[serviceUUIDlower] || {})[uuidLower];
+              const listenerList = subscriptions ? subscriptions.listeners() : [];
+              if (listenerList.length > 0) {
+                for (const listener of listenerList) {
+                  try {
+                    const characteristicMock = { serviceUUID, uuid, value };
+                    // Note: handle async exception
+                    Promise.resolve(listener(error, characteristicMock)).catch(console.error);
+                  } catch (err) {
+                    // Note: handle sync exception
+                    console.error(err);
+                  }
                 }
               } else {
-                console.log(this._characteristicListener, { serviceUUIDlower, uuidLower });
+                console.log(this._characteristicSubscriptions, { serviceUUIDlower, uuidLower });
                 console.warn(`BleManagerMock: event cannot be delivered, as bleManager.monitorCharacteristicForDevice has not yet been called: ${JSON.stringify(record)} or subscription was removed`);
               }
             }
             break;
           }
           case 'deviceDisconnected': {
-            const { _deviceDisconnectedListener: listener } = this;
-            if (listener) {
-              const { device, error } = record.args;
-              try {
-                // Note: handle async exception
-                Promise.resolve(listener(error, device)).catch(console.error);
-              } catch (err) {
-                // Note: handle sync exception
-                console.error(err);
+            const { device, error } = record.args;
+            const { id } = device;
+            const subscriptions = this._deviceDisconnectedSubscriptions[id];
+            const listenerList = subscriptions ? subscriptions.listeners() : [];
+            if (listenerList.length > 0) {
+              for (const listener of listenerList) {
+                try {
+                  // Note: handle async exception
+                  Promise.resolve(listener(error, device)).catch(console.error);
+                } catch (err) {
+                  // Note: handle sync exception
+                  console.error(err);
+                }
               }
             } else {
               console.warn(`BleManagerMock: event cannot be delivered, as bleManager.onDeviceDisconnected has not yet been called: ${JSON.stringify(record)}`);
@@ -184,15 +234,18 @@ export class BlePlayer {
             break;
           }
           case 'deviceScan': {
-            const { _deviceScanListener: listener } = this;
-            if (listener) {
-              const { device, error } = record.args;
-              try {
-                // Note: handle async exception
-                Promise.resolve(listener(error, device)).catch(console.error);
-              } catch (err) {
-                // Note: handle sync exception
-                console.error(err);
+            const { _deviceScanSubscriptions: subscriptions } = this;
+            const listenerList = subscriptions.listeners();
+            if (listenerList.length > 0) {
+              for (const listener of listenerList) {
+                const { device, error } = record.args;
+                try {
+                  // Note: handle async exception
+                  Promise.resolve(listener(error, device)).catch(console.error);
+                } catch (err) {
+                  // Note: handle sync exception
+                  console.error(err);
+                }
               }
             } else {
               console.warn(`BleManagerMock: event cannot be delivered, as bleManager.startDeviceScan has not yet been called: ${JSON.stringify(record)}`);
@@ -200,15 +253,18 @@ export class BlePlayer {
             break;
           }
           case 'stateChange': {
-            const { _stateChangeListener: listener } = this;
-            if (listener) {
-              const { powerState } = record.args;
-              try {
-                // Note: handle async exception
-                Promise.resolve(listener(powerState)).catch(console.error);
-              } catch (err) {
-                // Note: handle sync exception
-                console.error(err);
+            const { _stateChangeSubscriptions: subscriptions } = this;
+            const listenerList = subscriptions.listeners();
+            if (listenerList.length > 0) {
+              for (const listener of listenerList) {
+                const { powerState } = record.args;
+                try {
+                  // Note: handle async exception
+                  Promise.resolve(listener(powerState)).catch(console.error);
+                } catch (err) {
+                  // Note: handle sync exception
+                  console.error(err);
+                }
               }
             } else {
               console.warn(`BleManagerMock: event cannot be delivered, as bleManager.onStateChange has not yet been called: ${JSON.stringify(record)}`);
@@ -278,14 +334,8 @@ export class BleManagerMock {
 
   /** @param { StateChangeListener } listener */
   onStateChange(listener, emitCurrentState = false) {
-    if (this.blePlayer._stateChangeListener) {
-      this.blePlayer._error('Cannot call "onStateChange()" until calling "remove()" on previous subscription');
-    }
     this.blePlayer._expectCommand('onStateChange', { emitCurrentState });
-    this.blePlayer._stateChangeListener = listener;
-    const subscription = {
-      remove: () => { delete this.blePlayer._stateChangeListener; },
-    };
+    const subscription = this.blePlayer._stateChangeSubscriptions.add(listener);
     return subscription;
   }
 
@@ -295,14 +345,8 @@ export class BleManagerMock {
    * @param { DeviceScanListener } listener 
    */
   startDeviceScan(uuidList, scanOptions, listener) {
-    if (this.blePlayer._deviceScanListener) {
-      this.blePlayer._error('Cannot call "startDeviceScan()" until calling "remove()" on previous subscription');
-    }
     this.blePlayer._expectCommand('startDeviceScan', { uuidList, scanOptions });
-    this.blePlayer._deviceScanListener = listener;
-    const subscription = {
-      remove: () => { delete this.blePlayer._deviceScanListener; },
-    };
+    const subscription = this.blePlayer._deviceScanSubscriptions.add(listener);
     return subscription;
   }
 
@@ -313,14 +357,9 @@ export class BleManagerMock {
    * @returns 
    */
   onDeviceDisconnected(id, listener) {
-    if (this.blePlayer._deviceDisconnectedListener) {
-      this.blePlayer._error('Cannot call "onDeviceDisconnected()" until calling "remove()" on previous subscription', true);
-    }
     this.blePlayer._expectCommand('onDeviceDisconnected', { id });
-    this.blePlayer._deviceDisconnectedListener = listener;
-    const subscription = {
-      remove: () => { delete this.blePlayer._deviceDisconnectedListener; },
-    };
+    this.blePlayer._deviceDisconnectedSubscriptions[id] = this.blePlayer._deviceDisconnectedSubscriptions[id] || new SubscriptionSet();
+    const subscription = this.blePlayer._deviceDisconnectedSubscriptions[id].add(listener);
     return subscription;
   }
 
@@ -439,19 +478,11 @@ export class BleManagerMock {
     this.blePlayer._expectCommand('monitorCharacteristicForDevice', { id, serviceUUID, characteristicUUID });
     const serviceUUIDlower = serviceUUID.toLowerCase();
     const characteristicUUIDlower = characteristicUUID.toLowerCase();
-    this.blePlayer._characteristicListener[serviceUUIDlower] = this.blePlayer._characteristicListener[serviceUUIDlower] || {};
-    if (this.blePlayer._characteristicListener[serviceUUIDlower][characteristicUUIDlower]) {
-      console.error(`Warning: missing call to monitorCharacteristicForDevice('${id}', '${serviceUUID}', '${characteristicUUID}).remove()`);
-    }
-    this.blePlayer._characteristicListener[serviceUUIDlower][characteristicUUIDlower] = listener;
+    this.blePlayer._characteristicSubscriptions[serviceUUIDlower] = this.blePlayer._characteristicSubscriptions[serviceUUIDlower] || {};
+    this.blePlayer._characteristicSubscriptions[serviceUUIDlower][characteristicUUIDlower] = this.blePlayer._characteristicSubscriptions[serviceUUIDlower][characteristicUUIDlower] || new SubscriptionSet();
+    const subscription = this.blePlayer._characteristicSubscriptions[serviceUUIDlower][characteristicUUIDlower].add(listener);
     this.blePlayer._autoPlayEvents(); // Note: eventually consider if we should do this on all commands
-    return {
-      remove: () => {
-        if (this.blePlayer._characteristicListener[serviceUUIDlower]) {
-          delete this.blePlayer._characteristicListener[serviceUUIDlower][characteristicUUIDlower];
-        }
-      },
-    };
+    return subscription;
   }
 
   /**
