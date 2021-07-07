@@ -67,6 +67,8 @@ export class BlePlayer {
     this.bleManagerMock = bleManagerMock;
     /** @type { boolean } */
     this.trace = false;
+    /** @type { boolean } */
+    this.warn = false;
     /** @type { Record<UUID, Record<UUID, SubscriptionSet<CharacteristicListener>>> } */
     this._characteristicSubscriptions = {};
     /** @type { Record<UUID, SubscriptionSet<DeviceDisconnectedListener>> } */
@@ -206,7 +208,7 @@ export class BlePlayer {
                     console.error(err);
                   }
                 }
-              } else {
+              } else if (this.warn) {
                 console.log(this._characteristicSubscriptions, { serviceUUIDlower, uuidLower });
                 console.warn(`BleManagerMock: event cannot be delivered, as bleManager.monitorCharacteristicForDevice has not yet been called: ${JSON.stringify(record)} or subscription was removed`);
               }
@@ -228,7 +230,7 @@ export class BlePlayer {
                   console.error(err);
                 }
               }
-            } else {
+            } else if (this.warn) {
               console.warn(`BleManagerMock: event cannot be delivered, as bleManager.onDeviceDisconnected has not yet been called: ${JSON.stringify(record)}`);
             }
             break;
@@ -247,7 +249,7 @@ export class BlePlayer {
                   console.error(err);
                 }
               }
-            } else {
+            } else if (this.warn) {
               console.warn(`BleManagerMock: event cannot be delivered, as bleManager.startDeviceScan has not yet been called: ${JSON.stringify(record)}`);
             }
             break;
@@ -266,7 +268,7 @@ export class BlePlayer {
                   console.error(err);
                 }
               }
-            } else {
+            } else if (this.warn) {
               console.warn(`BleManagerMock: event cannot be delivered, as bleManager.onStateChange has not yet been called: ${JSON.stringify(record)}`);
             }
             break;
