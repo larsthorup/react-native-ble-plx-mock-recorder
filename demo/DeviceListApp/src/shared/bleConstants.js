@@ -12,7 +12,7 @@ export const characteristic = {
   },
 };
 
-export const nameFromUuid = {
+export const nameFromUUID = {
   ...(Object.fromEntries(Object.values(service).map((s) => [s.uuid, s.name]))),
   ...(Object.fromEntries(Object.values(characteristic).map((c) => [c.uuid, c.name]))),
 };

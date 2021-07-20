@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { BleManager } from 'react-native-ble-plx';
 
 import * as bleService from '../shared/bleService';
-import { characteristic, nameFromUuid, service } from '../shared/bleConstants';
+import { characteristic, nameFromUUID, service } from '../shared/bleConstants';
 
 import { base64FromUint8, uint8FromBase64 } from '../shared/base64';
 import { BleRecorder } from 'react-native-ble-plx-mock-recorder';
@@ -33,7 +33,7 @@ describe(recordingName, () => {
       bleManager: new BleManager(),
       recordingName,
       deviceMap,
-      nameFromUuid,
+      nameFromUUID,
     });
     bleRecorder.spec.deviceScan = { keep: 1 };
     bleManager = bleRecorder.bleManagerSpy;

@@ -110,6 +110,8 @@
         "value": "Kg=="
       },
       "debug": {
+        "serviceUUID": "Battery Service",
+        "characteristicUUID": "Battery Level",
         "value": "<Buffer 2a> '*'"
       }
     },
